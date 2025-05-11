@@ -1,0 +1,40 @@
+name: CI / Smoke-Test Streamlit App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  smoke_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Launch Streamlit (headless)
+        env:
+          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+        run: |
+          nohup streamlit run server.py --server.headless true --server.port 8501 &>/dev/null &
+          sleep 10
+
+      - name: Smoke-test HTTP endpoint
+        run: |
+          curl --fail http://localhost:8501 || exit 1
+
+      - name: Stop Streamlit
+        run: |
+          pkill -f "streamlit run" || true

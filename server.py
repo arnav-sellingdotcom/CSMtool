@@ -10,7 +10,7 @@ API_KEY = st.secrets["pinecone"]["api_key"]
 # Initialize Pinecone Assistant
 pc = Pinecone(api_key=API_KEY)
 try:
-    assistant = pc.assistant.Assistant(assistant_name="selling.com assistant")
+    assistant = pc.assistant.Assistant(assistant_name="yteru")
 except NotFoundException:
     st.error(
         "Error: Assistant 'selling.com assistant' not found. "

@@ -1,20 +1,16 @@
-"""
-Requirements:
-    pip install -U streamlit streamlit-chatbox pinecone pinecone-plugins
-"""
 import streamlit as st
 from streamlit_chatbox import ChatBox, Markdown
 from pinecone import Pinecone
 from pinecone_plugins.assistant.models.chat import Message
 from pinecone_plugins.assistant.control.core.client.exceptions import NotFoundException
 
-# Hardcoded API key
-API_KEY = "pcsk_3Gij7S_F9ECnCAGNy59PpLjaW4EQuzbELnut28WMGkQkvgS5vV46Ys3SX36s2PUW55qKQs"
+# Load API key from Streamlit secrets
+API_KEY = st.secrets["pinecone"]["api_key"]
 
 # Initialize Pinecone Assistant
 pc = Pinecone(api_key=API_KEY)
 try:
-    assistant = pc.assistant.Assistant(assistant_name="yteru")
+    assistant = pc.assistant.Assistant(assistant_name="selling.com assistant")
 except NotFoundException:
     st.error(
         "Error: Assistant 'selling.com assistant' not found. "
@@ -47,7 +43,8 @@ if user_input := st.chat_input("You:"):
     # Append assistant message
     chat_box.ai_say([Markdown(assistant_msg)])
 
-
+# Render the full conversation history
+chat_box.output_messages()
 
 # Clear chat history button
 if st.button("Clear Chat"):

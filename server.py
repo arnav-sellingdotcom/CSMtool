@@ -34,17 +34,19 @@ for msg in st.session_state.history:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Handle user input
-if user_input := st.chat_input("You:"):
-    # append user
-    st.session_state.history.append({"role": "user", "content": user_input})
-    # prepare Pinecone messages
-    messages = [Message(content=m["content"]) for m in st.session_state.history]
-    # get assistant reply
-    resp = assistant.chat(messages=messages)
-    text = resp.get("message", {}).get("content", "")
-    st.session_state.history.append({"role": "assistant", "content": text})
-    # rerun to show
+     if user_input := st.chat_input("You:"):
+         # append user
+         st.session_state.history.append({"role": "user", "content": user_input})
+         # prepare Pinecone messages
+         messages = [Message(content=m["content"]) for m in st.session_state.history]
+         # get assistant reply
+         resp = assistant.chat(messages=messages)
+         text = resp.get("message", {}).get("content", "")
+         st.session_state.history.append({"role": "assistant", "content": text})
+       # rerun to show
+        # rerun so Streamlit picks up the new messages
+        st.experimental_rerun()
+
     
 
 # Clear chat button

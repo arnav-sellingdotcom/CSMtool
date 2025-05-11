@@ -1,55 +1,53 @@
+import os
 import streamlit as st
-from streamlit_chatbox import ChatBox, Markdown
 from pinecone import Pinecone
 from pinecone_plugins.assistant.models.chat import Message
 from pinecone_plugins.assistant.control.core.client.exceptions import NotFoundException
 
-# Load API key from Streamlit secrets
-API_KEY = st.secrets["pinecone"]["api_key"]
+# Load API key (from GitHub Actions env or Streamlit secrets)
+API_KEY = os.getenv("PINECONE_API_KEY") or st.secrets.get("pinecone", {}).get("api_key")
+if not API_KEY:
+    st.error("Missing Pinecone API key. Set PINECONE_API_KEY env var or in Streamlit secrets.")
+    st.stop()
 
 # Initialize Pinecone Assistant
 pc = Pinecone(api_key=API_KEY)
 try:
-    assistant = pc.assistant.Assistant(assistant_name="yteru")
+    assistant = pc.assistant.Assistant(assistant_name="selling.com assistant")
 except NotFoundException:
     st.error(
         "Error: Assistant 'selling.com assistant' not found. "
-        "Create it in the Pinecone console or use a valid assistant name."
+        "Create it in the Pinecone console or use a valid name."
     )
     st.stop()
 
-# Streamlit page configuration
+# Page config
 st.set_page_config(page_title="Selling.com Assistant Chat", layout="centered")
 st.title("💬 Selling.com Assistant Chat")
 
-# Initialize ChatBox session
-chat_box = ChatBox(use_rich_markdown=False)
-chat_box.use_chat_name("main_chat")
-chat_box.init_session()
+# Initialize chat history
+if "history" not in st.session_state:
+    st.session_state.history = []
 
-# Helper to extract text from history item
-def extract_text(item):
-    if isinstance(item, dict):
-        return item.get("message") or item.get("text") or item.get("content") or str(item)
-    return getattr(item, "message", str(item))
+# Display existing messages
+for msg in st.session_state.history:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
-# Capture user input and interact
+# Handle user input
 if user_input := st.chat_input("You:"):
-    chat_box.user_say(user_input)
-    # Build context and get response
-    messages = [Message(content=extract_text(msg)) for msg in chat_box.history]
+    # append user
+    st.session_state.history.append({"role": "user", "content": user_input})
+    # prepare Pinecone messages
+    messages = [Message(content=m["content"]) for m in st.session_state.history]
+    # get assistant reply
     resp = assistant.chat(messages=messages)
-    assistant_msg = resp.get("message", {}).get("content", "")
-    # Append assistant message
-    chat_box.ai_say([Markdown(assistant_msg)])
+    text = resp.get("message", {}).get("content", "")
+    st.session_state.history.append({"role": "assistant", "content": text})
+    # rerun to show
+    st.experimental_rerun()
 
-# Render the full conversation history
-chat_box.output_messages()
-
-# Clear chat history button
+# Clear chat button
 if st.button("Clear Chat"):
-    chat_box.init_session(clear=True)
-    try:
-        st.rerun()
-    except AttributeError:
-        pass
+    st.session_state.history = []
+    st.experimental_rerun()

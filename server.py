@@ -5,7 +5,7 @@ from pinecone_plugins.assistant.models.chat import Message
 from pinecone_plugins.assistant.control.core.client.exceptions import NotFoundException
 
 # Load API key (from GitHub Actions env or Streamlit secrets)
-API_KEY = os.getenv("PINECONE_API_KEY") or st.secrets.get("pinecone", {}).get("api_key")
+API_KEY = os.getenv("PINECONE_API_KEY") 
 if not API_KEY:
     st.error("Missing Pinecone API key. Set PINECONE_API_KEY env var or in Streamlit secrets.")
     st.stop()
@@ -13,7 +13,7 @@ if not API_KEY:
 # Initialize Pinecone Assistant
 pc = Pinecone(api_key=API_KEY)
 try:
-    assistant = pc.assistant.Assistant(assistant_name="selling.com assistant")
+    assistant = pc.assistant.Assistant(assistant_name="yteru")
 except NotFoundException:
     st.error(
         "Error: Assistant 'selling.com assistant' not found. "

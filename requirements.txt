@@ -1,3 +1,4 @@
-streamlit
-pinecone           # the renamed, maintained Pinecone Python SDK :contentReference[oaicite:0]{index=0}
-pinecone-plugins   # your assistant plugin for Pinecone :contentReference[oaicite:1]{index=1}
+# Application dependencies
+streamlit>=1.45.0
+pinecone>=6.0.2
+pinecone-plugin-assistant>=0.1.0

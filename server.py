@@ -45,7 +45,7 @@ if user_input := st.chat_input("You:"):
     text = resp.get("message", {}).get("content", "")
     st.session_state.history.append({"role": "assistant", "content": text})
     # rerun to show
-    st.experimental_rerun()
+    
 
 # Clear chat button
 if st.button("Clear Chat"):

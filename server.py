@@ -13,7 +13,7 @@ if not API_KEY:
 # Initialize Pinecone Assistant
 pc = Pinecone(api_key=API_KEY)
 try:
-    assistant = pc.assistant.Assistant(assistant_name="yteru")
+    assistant = pc.assistant.Assistant(assistant_name="csmtool")
 except NotFoundException:
     st.error("Error: Assistant 'yteru' not found. Create it in the Pinecone console or use a valid name.")
     st.stop()
